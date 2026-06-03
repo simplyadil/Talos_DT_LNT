@@ -1,0 +1,83 @@
+module dt_system is
+
+  channel Data is (d : Nat) end channel
+  channel Signal is (s : Bool) end channel
+
+  process CHANNEL_K [SND_K, K_RCV : Data] is
+    loop
+      SND_K (?any Nat);
+      alt
+        K_RCV (0)
+      []
+        i
+      end alt
+    end loop
+  end process
+
+  process CHANNEL_L [SND_L, L_RCV : Signal] is
+    loop
+      SND_L (true);
+      alt
+        L_RCV (true)
+      []
+        i
+      end alt
+    end loop
+  end process
+
+  process DEVIATION_MONITOR [K_RCV : Data, DEVIATION_DETECTED : Signal] is
+    var deviation : Nat, threshold : Nat in
+      threshold := 5;
+      loop
+        K_RCV (?deviation);
+        if deviation > threshold then
+          DEVIATION_DETECTED (true);
+          exit
+        end if
+      end loop
+    end var
+  end process
+
+  process EMERGENCY_STOP [DEVIATION_DETECTED, SND_L : Signal] is
+    DEVIATION_DETECTED (true);
+    SND_L (true)
+  end process
+
+  process PT [SND_K : Data, L_RCV : Signal] is
+    var data : Nat in
+      data := 0;
+      loop
+        alt
+          SND_K (data);
+          data := data + 1
+        []
+          L_RCV (true);
+          exit
+        end alt
+      end loop
+    end var
+  end process
+
+  process MAIN [SND_K : Data, K_RCV : Data,
+                DEVIATION_DETECTED : Signal,
+                SND_L : Signal, L_RCV : Signal] is
+    par SND_K, L_RCV in
+      PT [SND_K, L_RCV]
+    ||
+      par SND_K, K_RCV, SND_L, L_RCV in
+        CHANNEL_K [SND_K, K_RCV]
+      ||
+        par K_RCV, DEVIATION_DETECTED, SND_L, L_RCV in
+          DEVIATION_MONITOR [K_RCV, DEVIATION_DETECTED]
+        ||
+          par DEVIATION_DETECTED, SND_L, L_RCV in
+            EMERGENCY_STOP [DEVIATION_DETECTED, SND_L]
+          ||
+            CHANNEL_L [SND_L, L_RCV]
+          end par
+        end par
+      end par
+    end par
+  end process
+
+end module
