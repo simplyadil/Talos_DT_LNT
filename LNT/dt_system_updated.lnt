@@ -56,7 +56,8 @@ end process
 -- Waits for DEVIATION_DETECTED to tell it to send command to the PT.
 process EMERGENCY_STOP [DEVIATION_DETECTED, SND_L : Signal] is
   DEVIATION_DETECTED (true);
-  SND_L (true)
+  SND_L (true);
+  stop
 end process
 
 
