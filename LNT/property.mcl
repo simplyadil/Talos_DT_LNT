@@ -1,0 +1,2 @@
+[ true* . "DEVIATION_DETECTED !TRUE" ] 
+ mu X . ( < "L_RCV !TRUE" > true or < not "L_RCV !TRUE" > X ) 

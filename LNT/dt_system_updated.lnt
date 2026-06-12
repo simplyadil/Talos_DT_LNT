@@ -45,7 +45,7 @@ process DEVIATION_MONITOR [K_RCV : Data, DEVIATION_DETECTED : Signal] is
       K_RCV (?deviation);
       if deviation > threshold then
         DEVIATION_DETECTED (true);
-        stop
+        loop i end loop
       end if
     end loop
   end var
@@ -57,7 +57,7 @@ end process
 process EMERGENCY_STOP [DEVIATION_DETECTED, SND_L : Signal] is
   DEVIATION_DETECTED (true);
   SND_L (true);
-  stop
+  loop i end loop
 end process
 
 
@@ -65,7 +65,7 @@ end process
 -- Receives the emergency stop signal from CHANNEL_L and stop the robot base.
 process ROS2_BASE_CONTROLLER [L_RCV : Signal] is
   L_RCV (true);
-  stop
+  loop i end loop
 end process
 
 
@@ -73,7 +73,7 @@ end process
 -- Receives the emergency stop signal from CHANNEL_L and stop the gripper for the robot.
 process ROS2_JOINT_CONTROLLER [L_RCV : Signal] is
   L_RCV (true);
-  stop
+  loop i end loop
 end process
 
 
@@ -90,7 +90,7 @@ process PT [SND_K : Data, L_RCV : Signal] is
     par
       loop
         if count >= 5 then
-          stop
+          loop i end loop
         end if;
         SND_K (data);
         data  := data  + 1;
