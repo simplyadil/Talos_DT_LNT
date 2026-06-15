@@ -10,14 +10,16 @@ channel Signal is (s : Bool) end channel
 -- Models the unreliable TCP/IP link PT -> DT.
 -- Non-deterministically delivers or silently drops each packet.
 process CHANNEL_K [SND_K, K_RCV : Data] is
-  loop
-    SND_K (?any Nat);
-    alt
-      K_RCV (0)   -- deliver packet (observable)
-    []
-      i           -- drop packet silently (tau, packet loss)
-    end alt
-  end loop
+  var d : Nat in
+    loop
+      SND_K (?d);
+      alt
+        K_RCV (d)   -- forward received value
+      []
+        i           -- packet loss
+      end alt
+    end loop
+  end var
 end process
 
 
@@ -40,7 +42,7 @@ end process
 -- Receives aggregated sensor data from CHANNEL_K, and computes a deviation and triggers EMERGENCY_STOP when the deviation exceeds the threshold.
 process DEVIATION_MONITOR [K_RCV : Data, DEVIATION_DETECTED : Signal] is
   var deviation : Nat, threshold : Nat in
-    threshold := 5;
+    threshold := 2;
     loop
       K_RCV (?deviation);
       if deviation > threshold then
