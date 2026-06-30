@@ -9,7 +9,6 @@ The goal of this project is to model the system behavior as a Labelled Transitio
 The project models a digital twin emergency-stop scenario in a formal and executable way. The main artifacts are:
 
 - [LNT/dt_system_final.lnt](LNT/dt_system_final.lnt): the LNT specification of the system
-- [LNT/property.mcl](LNT/property.mcl): the MCL property used for verification
 - [LNT/dt_system_final.bcg](LNT/dt_system_final.bcg): the generated LTS/BCG model
 - [LNT/properties/](LNT/properties/): the twelve MCL properties used for verification
 
