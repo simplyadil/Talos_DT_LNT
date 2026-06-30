@@ -1,0 +1,9 @@
+In specification V2 [3]
+
+   - a deadlock exists for rendez-vous:
+        exit
+     synchronized by parallel operator ``|[exit, SND_L]|''
+     this gate/offer combination is used in the left operand:
+        EMERGENCY_STOP [exit, DEVIATION_DETECTED, SND_L]
+     but not in the right operand:
+        CHANNEL_L [exit, SND_L, L_RCV]

@@ -8,9 +8,9 @@ The goal of this project is to model the system behavior as a Labelled Transitio
 
 The project models a digital twin emergency-stop scenario in a formal and executable way. The main artifacts are:
 
-- [LNT/dt_system_updated.lnt](LNT/dt_system_updated.lnt): the LNT specification of the system
+- [LNT/dt_system_final.lnt](LNT/dt_system_final.lnt): the LNT specification of the system
 - [LNT/property.mcl](LNT/property.mcl): the MCL property used for verification
-- [LNT/dt_system_updated.bcg](LNT/dt_system_updated.bcg): the generated LTS/BCG model
+- [LNT/dt_system_final.bcg](LNT/dt_system_final.bcg): the generated LTS/BCG model
 - [LNT/module_dt_system_is.lnt](LNT/module_dt_system_is.lnt): supporting LNT module
 
 ## Prerequisites
@@ -32,17 +32,17 @@ Before working with this project, you need:
 From the [LNT](LNT) directory, generate the BCG/LTS model with:
 
 ```bash
-lnt.open dt_system_updated.lnt generator dt_system_updated.bcg
+lnt.open dt_system_final.lnt generator dt_system_final.bcg
 ```
 
-This command compiles the LNT specification and produces the labelled transition system stored in [LNT/dt_system_updated.bcg](LNT/dt_system_updated.bcg).
+This command compiles the LNT specification and produces the labelled transition system stored in [LNT/dt_system_final.bcg](LNT/dt_system_final.bcg).
 
 ## Viewing the LTS model
 
 To inspect the generated model interactively, run:
 
 ```bash
-bcg_edit dt_system_updated.bcg
+bcg_edit dt_system_final.bcg
 ```
 
 ## Running the simulation
@@ -50,7 +50,7 @@ bcg_edit dt_system_updated.bcg
 To open the generated BCG file for simulation or interactive exploration, run:
 
 ```bash
-bcg_open dt_system_updated.bcg ocis
+bcg_open dt_system_final.bcg ocis
 ```
 
 ## Verification with MCL

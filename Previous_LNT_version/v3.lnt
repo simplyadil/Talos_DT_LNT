@@ -1,0 +1,151 @@
+module v3 is
+
+-- Data  : carries sensor readings (position, velocity, torque,
+--         current, temperature) as a single aggregated value
+-- Signal: carries boolean control signals (e.g., emergency stop = true or false)
+channel Data   is (d : Nat)  end channel
+channel Signal is (s : Bool) end channel
+
+-- Process: CHANNEL_K
+-- Models the unreliable TCP/IP link PT -> DT.
+-- Non-deterministically delivers or silently drops each packet.
+process CHANNEL_K [SND_K, K_RCV : Data] is
+  loop
+    SND_K (?any Nat);
+    alt
+      K_RCV (0)   -- deliver packet (observable)
+    []
+      i           -- drop packet silently (tau, packet loss)
+    end alt
+  end loop
+end process
+
+
+-- Process: CHANNEL_L
+-- Models the unreliable TCP/IP link DT -> PT.
+-- Non-deterministically delivers or silently drops the emergency stop command.
+process CHANNEL_L [SND_L, L_RCV : Signal] is
+  loop
+    SND_L (true);
+    alt
+      L_RCV (true)   -- deliver stop command
+    []
+      i              -- drop stop command (packet loss)
+    end alt
+  end loop
+end process
+
+
+-- Process: DEVIATION_MONITOR
+-- Receives aggregated sensor data from CHANNEL_K, and computes a deviation and triggers EMERGENCY_STOP when the deviation exceeds the threshold.
+process DEVIATION_MONITOR [K_RCV : Data, DEVIATION_DETECTED : Signal] is
+  var deviation : Nat, threshold : Nat in
+    threshold := 5;
+    loop
+      K_RCV (?deviation);
+      if deviation > threshold then
+        DEVIATION_DETECTED (true);
+        loop i end loop
+      end if
+    end loop
+  end var
+end process
+
+
+-- Process: EMERGENCY_STOP
+-- Waits for DEVIATION_DETECTED to tell it to send command to the PT.
+process EMERGENCY_STOP [DEVIATION_DETECTED, SND_L : Signal] is
+  DEVIATION_DETECTED (true);
+  SND_L (true);
+  loop i end loop
+end process
+
+
+-- Process: ROS2_BASE_CONTROLLER
+-- Receives the emergency stop signal from CHANNEL_L and stop the robot base.
+process ROS2_BASE_CONTROLLER [L_RCV : Signal] is
+  L_RCV (true);
+  loop i end loop
+end process
+
+
+-- Process: ROS2_JOINT_CONTROLLER
+-- Receives the emergency stop signal from CHANNEL_L and stop the gripper for the robot.
+process ROS2_JOINT_CONTROLLER [L_RCV : Signal] is
+  L_RCV (true);
+  loop i end loop
+end process
+
+
+-- PT  (Physical Twin)
+-- Aggregates sensor readings from the Kinova Gen3 (position, velocity, torque, current, temperature across 7 joints) into a single value 
+-- and continuously sends them on SND_K. Also, for both controllers listen for L_RCV.
+process PT [SND_K : Data, L_RCV : Signal] is
+  var data : Nat, count : Nat in
+    data  := 0;
+    count := 0;
+    -- PT runs two concurrent activities:
+    -- 1. Sensor should stream SND_K on a loop. For the sake for state explosion limit this number
+    -- 2. For both controllers wait for the emergency stop signal
+    par
+      loop
+        if count >= 5 then
+          loop i end loop
+        end if;
+        SND_K (data);
+        data  := data  + 1;
+        count := count + 1
+      end loop
+    ||
+      -- Both ROS2 controllers synchronise on the same L_RCV event.
+      -- They both must receive it simultaneously (joint sync on L_RCV).
+      par L_RCV in
+        ROS2_BASE_CONTROLLER  [L_RCV]
+      ||
+        ROS2_JOINT_CONTROLLER [L_RCV]
+      end par
+    end par
+  end var
+end process
+
+
+-- MAIN
+-- Composes all five processes respecting the architecture:
+--
+--   PT  <--SND_K-->  CHANNEL_K  <--K_RCV-->  DEVIATION_MONITOR
+--                                                    |
+--                                          DEVIATION_DETECTED
+--                                                    |
+--   PT  <--L_RCV--  CHANNEL_L  <--SND_L--  EMERGENCY_STOP
+--
+-- Each synchronisation gate is listed ONLY in the par block
+-- that connects the two processes that share it.
+
+process MAIN [SND_K : Data, K_RCV : Data,
+              DEVIATION_DETECTED : Signal,
+              SND_L : Signal, L_RCV : Signal] is
+  par SND_K in
+    -- Left side: PT streams sensor data into CHANNEL_K
+    PT [SND_K, L_RCV]
+  ||
+    par K_RCV in
+      -- CHANNEL_K delivers to DEVIATION_MONITOR
+      CHANNEL_K [SND_K, K_RCV]
+    ||
+      par DEVIATION_DETECTED in
+        -- DEVIATION_MONITOR triggers EMERGENCY_STOP
+        DEVIATION_MONITOR [K_RCV, DEVIATION_DETECTED]
+      ||
+        par SND_L in
+          -- EMERGENCY_STOP sends into CHANNEL_L
+          EMERGENCY_STOP [DEVIATION_DETECTED, SND_L]
+        ||
+          -- CHANNEL_L delivers stop command back to PT
+          CHANNEL_L [SND_L, L_RCV]
+        end par
+      end par
+    end par
+  end par
+end process
+
+end module

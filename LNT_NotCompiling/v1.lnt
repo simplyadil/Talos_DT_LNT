@@ -1,4 +1,4 @@
-module dt_system is
+module v1 is
 
   channel Data is (d : Nat) end channel
   channel Signal is (s : Bool) end channel
