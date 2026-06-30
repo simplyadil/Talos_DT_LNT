@@ -11,7 +11,7 @@ The project models a digital twin emergency-stop scenario in a formal and execut
 - [LNT/dt_system_final.lnt](LNT/dt_system_final.lnt): the LNT specification of the system
 - [LNT/property.mcl](LNT/property.mcl): the MCL property used for verification
 - [LNT/dt_system_final.bcg](LNT/dt_system_final.bcg): the generated LTS/BCG model
-- [LNT/module_dt_system_is.lnt](LNT/module_dt_system_is.lnt): supporting LNT module
+- [LNT/properties/](LNT/properties/): the twelve MCL properties used for verification
 
 ## Prerequisites
 
