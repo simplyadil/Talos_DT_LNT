@@ -1,0 +1,8 @@
+macro GOOD_TERMINAL () =
+  ("STOP_SENT" or "BASE_STOPPED" or "JOINT_STOPPED" or
+   "DEVIATION_HANDLED" or "STREAM_DONE")
+end_macro
+
+(* P12: A successful stop dispatch leads to both controllers halting (Liveness) *)
+[ true* . "STOP_SENT" ]
+  mu X . ( < true* . "BASE_STOPPED" > true or < not GOOD_TERMINAL > X )

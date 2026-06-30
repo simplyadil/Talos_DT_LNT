@@ -1,0 +1,3 @@
+(* P11: Both controllers always stop together (Safety) *)
+[ true* . "BASE_STOPPED" . (not "JOINT_STOPPED")* ]
+  < true* . "JOINT_STOPPED" > true

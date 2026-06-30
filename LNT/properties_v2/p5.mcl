@@ -1,0 +1,7 @@
+macro GOOD_TERMINAL () =
+  ("STOP_SENT" or "BASE_STOPPED" or "JOINT_STOPPED" or
+   "DEVIATION_HANDLED" or "STREAM_DONE")
+end_macro
+
+(* P5: A good terminal state is always reachable (Liveness) *)
+[ true* ] < true* . GOOD_TERMINAL > true

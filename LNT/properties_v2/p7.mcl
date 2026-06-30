@@ -1,0 +1,2 @@
+(* P7: At most one stop is ever received (Safety) *)
+[ true* . "L_RCV !TRUE" . true* . "L_RCV !TRUE" ] false

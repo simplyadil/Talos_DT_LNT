@@ -1,0 +1,2 @@
+(* P6: No stop sent into Channel L without prior deviation detection (Safety) *)
+[ (not "DEVIATION_DETECTED !TRUE")* . "SND_L !TRUE" ] false

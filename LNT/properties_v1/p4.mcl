@@ -1,0 +1,3 @@
+(* P4: After a send, delivery through Channel K is guaranteed on every path (Fairness) *)
+[ true* . "SND_K !0" ]
+  mu X . ( < "K_RCV !0" > true or ( [ not "K_RCV !0" ] X and < true > true ) )

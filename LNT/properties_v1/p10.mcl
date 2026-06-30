@@ -1,0 +1,2 @@
+(* P10: The PT never sends more than 5 packets (Safety) *)
+[ true* . "SND_K !5" ] false

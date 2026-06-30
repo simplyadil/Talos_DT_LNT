@@ -1,0 +1,2 @@
+(* P9: No reachable state allows infinite internal actions (Liveness - livelock freedom) *)
+[ true* ] not ( nu X . < "i" > X )
