@@ -1,0 +1,2 @@
+(* P2: No stop received without prior deviation detection (Safety) *)
+[ (not "DEVIATION_DETECTED !TRUE")* . "L_RCV !TRUE" ] false

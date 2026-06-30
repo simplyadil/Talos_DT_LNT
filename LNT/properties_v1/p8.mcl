@@ -1,0 +1,2 @@
+(* P8: Every execution path eventually terminates (Liveness - inevitability) *)
+[ true* ] mu X . ( [ true ] false or ( [ true ] X and < true > true ) )

@@ -1,0 +1,8 @@
+macro GOOD_TERMINAL () =
+  ("STOP_SENT" or "BASE_STOPPED" or "JOINT_STOPPED" or
+   "DEVIATION_HANDLED" or "STREAM_DONE")
+end_macro
+
+(* P9: No livelock before reaching a good terminal (Liveness - livelock freedom) *)
+[ (not GOOD_TERMINAL)* ]
+  not ( nu X . < "i" . (not GOOD_TERMINAL)* > X )

@@ -1,0 +1,2 @@
+(* P5: From every reachable state, termination remains reachable (Liveness) *)
+[ true* ] < true* > ( [ true ] false )
